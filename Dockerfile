@@ -1,18 +1,26 @@
 FROM python:3.9-slim
 
-# Installa le dipendenze del sistema
-RUN apt-get update && apt-get install -y \
-    tk-dev \
-    python3-tk \
-    && rm -rf /var/lib/apt/lists/*
+# Crea un utente non-root
+RUN useradd -m appuser
 
 WORKDIR /app
+
+# Copia i file necessari
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 
 COPY . .
 
-# Espone la porta per Flask
+# Crea le directory necessarie e imposta i permessi
+RUN mkdir -p instance && \
+    mkdir -p app/templates app/static/css app/static/js && \
+    chown -R appuser:appuser /app && \
+    chmod -R 755 /app && \
+    chmod -R 777 /app/instance
+
+# Passa all'utente non-root
+USER appuser
+
 EXPOSE 5000
 
 CMD ["python", "run.py"]

@@ -1,12 +1,16 @@
-version: '3'
 services:
   web:
     build: .
     ports:
       - "5000:5000"
     volumes:
-      - .:/app
+      - ./:/app
+      - data-volume:/app/instance
     environment:
       - FLASK_ENV=development
-      - FLASK_APP=run.py
-    command: python run.py
+      - FLASK_DEBUG=1
+    user: appuser
+
+volumes:
+  data-volume:
+    driver: local
